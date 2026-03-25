@@ -3,6 +3,7 @@ package GenericGet;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,7 +29,7 @@ public class GenericGet {
             int retries = MAX_RETRIES;
             while (retries > 0) {
                 Future<Double> future = executor.submit(() -> {
-                    URL url = new URL(Constant.PI_HOME + Constant.PORT + Constant.PATH_PREFIX + suffix);
+                    URL url = new URI(Constant.PI_HOME + Constant.PORT + Constant.PATH_PREFIX + suffix).toURL();
                     //log.info(url.toString());
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("GET");
