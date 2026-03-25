@@ -11,7 +11,7 @@ import Const.Constant;
 
 public class Telemetry {
 	private enum COMMS_STATUS {
-		CPU_GOOD, CPU_DOWN, CPU_COMMS_DOWN, BATTERY_GOOD, BATTERY_DOWN, BATTERY_COMMS_DOWN
+		CPU_GOOD, CPU_DOWN, CPU_COMMS_DOWN, BATTERY_GOOD, BATTERY_DOWN, BATTERY_COMMS_DOWN, CPU_COMMS_TIMEOUT, BATTERY_COMMS_TIMEOUT
 	}
 	// Creating the JFrame for the application
 	private static JFrame frame = new JFrame("Telemetry");
@@ -37,6 +37,10 @@ public class Telemetry {
 			cpuTitle.setForeground(Color.RED);
 			cpuTitle.setText("CPU COMMS DOWN");
 			break;
+		case CPU_COMMS_TIMEOUT:
+			cpuTitle.setForeground(Color.RED);
+			cpuTitle.setText("CPU COMMS UP TIMEOUT");
+			break;
 		case BATTERY_DOWN:
 			frame.setForeground(Color.RED);
 			batteryTitle.setForeground(Color.RED);
@@ -51,6 +55,10 @@ public class Telemetry {
 			batteryTitle.setForeground(Color.RED);
 			batteryTitle.setText("BATTERY COMMS DOWN");
 			break;
+		case BATTERY_COMMS_TIMEOUT:
+			batteryTitle.setForeground(Color.RED);
+			batteryTitle.setText("BATTERY COMMS UP TIMEOUT");
+			break;
 		default:
 			throw new RuntimeException("Not a valid status");
 		}
@@ -64,6 +72,8 @@ public class Telemetry {
 			while (true) {
 				Double result = getCPUTemp();
 				Double result2 = getBatteryVoltage();
+				getBatteryTimeout();
+				getCPUTimeout();
 				if ((""+result2).equals(""+Constant.ERROR+".0")){
 				}
 				else {
@@ -136,5 +146,41 @@ public class Telemetry {
 		System.out.println(batteryVoltage);
 		return batteryVoltage;
 	}
+	public Double getCPUTimeout() {
+		Constant.gg.getGenericAsync(
+				"/telemetry/timeout-temp",
+				result -> {
+					Double timeout = result != null? result:null;
+					if ((""+timeout).equals(""+Constant.ERROR+".0")) {
+						updateStatus(COMMS_STATUS.CPU_COMMS_TIMEOUT);
+					} else {
+						updateStatus(COMMS_STATUS.CPU_GOOD);
 
+					}
+				},
+				errorMessage -> {
+					updateStatus(COMMS_STATUS.CPU_COMMS_DOWN);
+				}
+				);
+		return cpuTemp;
+	}
+	public Double getBatteryTimeout() {
+		Constant.gg.getGenericAsync(
+				"/telemetry/timeout-battery",
+				result -> {
+					batteryVoltage = (double)result;
+					if ((""+batteryVoltage).equals(""+Constant.ERROR+".0")) {
+						updateStatus(COMMS_STATUS.BATTERY_COMMS_TIMEOUT);
+					} else {
+						updateStatus(COMMS_STATUS.BATTERY_GOOD);
+
+					}
+				},
+				errorMessage -> {
+					updateStatus(COMMS_STATUS.BATTERY_COMMS_DOWN);
+				}
+				);
+		System.out.println(batteryVoltage);
+		return batteryVoltage;
+	}
 }
