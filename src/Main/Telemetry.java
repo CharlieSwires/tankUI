@@ -1,10 +1,7 @@
 package Main;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 
-import javax.swing.BorderFactory;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -92,7 +89,7 @@ public class Telemetry {
 				if ((""+result2).equals(""+Constant.ERROR+".0")){
 				}
 				else {
-					result2 *= 2.5;
+					result2 *= 4.9;
 				}
 
 				frame.setTitle("CPU temp=" + result + "Celcius, "
@@ -181,7 +178,6 @@ public class Telemetry {
 					updateStatus(COMMS_STATUS.BATTERY_COMMS_DOWN);
 				}
 				);
-		System.out.println(batteryVoltage);
 		return batteryVoltage;
 	}
 	public Double getCPUTimeout() {
@@ -200,7 +196,6 @@ public class Telemetry {
 					updateStatus(COMMS_STATUS.CPU_COMMS_TIMEOUT);
 				}
 				);
-		System.out.println(timeout);
 		return timeout;
 	}
 	public Double getBatteryTimeout() {
@@ -219,8 +214,6 @@ public class Telemetry {
 					updateStatus(COMMS_STATUS.BATTERY_COMMS_TIMEOUT);
 				}
 				);
-		System.out.println(batteryVoltage2);
-
 		return batteryVoltage2;
 	}
 }
