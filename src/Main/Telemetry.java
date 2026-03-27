@@ -77,7 +77,7 @@ public class Telemetry {
 				if ((""+result2).equals(""+Constant.ERROR+".0")){
 				}
 				else {
-					result2 *= 2.5;
+					result2 *= 4.9;
 				}
 
 				frame.setTitle("CPU temp=" + result + "Celcius, "
