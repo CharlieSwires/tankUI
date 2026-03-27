@@ -44,7 +44,6 @@ public class GenericGet {
                         while ((output = br.readLine()) != null) {
                             inString.append(output);
                         }
-                        log.info("inString="+inString.toString());
                         if (inString != null && inString.toString() != null && inString.toString().length() > 0) {
                             return Double.parseDouble(inString.toString());
                         } else {

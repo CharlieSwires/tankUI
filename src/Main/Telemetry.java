@@ -143,7 +143,6 @@ public class Telemetry {
 					updateStatus(COMMS_STATUS.BATTERY_COMMS_DOWN);
 				}
 				);
-		System.out.println(batteryVoltage);
 		return batteryVoltage;
 	}
 	public Double getCPUTimeout() {
@@ -180,7 +179,6 @@ public class Telemetry {
 					updateStatus(COMMS_STATUS.BATTERY_COMMS_DOWN);
 				}
 				);
-		System.out.println(batteryVoltage);
 		return batteryVoltage;
 	}
 }
