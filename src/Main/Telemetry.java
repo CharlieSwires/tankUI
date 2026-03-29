@@ -1,6 +1,7 @@
 package Main;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -18,11 +19,15 @@ public class Telemetry {
 	// Creating the JSlider
 	private static Double cpuTemp = (double) Constant.ERROR;
 	private static Double batteryVoltage = (double) Constant.ERROR;
+	private static Double tankBatteryVoltage = (double) Constant.ERROR;
+	private static double batteryVoltage2;
+	private static Double timeout;
 	private static JLabel cpuTitle = new JLabel("CPU OK", SwingConstants.LEFT);
 	private static Color originalColour = cpuTitle.getForeground();
 	private static JLabel batteryTitle= new JLabel("BATTERY OK", SwingConstants.RIGHT);
 	private static JLabel batteryTitle2= new JLabel("BATTERY OK", SwingConstants.RIGHT);
 	private static JLabel cpuTitle2= new JLabel("CPU OK", SwingConstants.LEFT);
+	private static JLabel batteryTitle3 = new JLabel("Tank battery="+tankBatteryVoltage+"Volts", SwingConstants.CENTER);
 	private static void updateStatus(COMMS_STATUS stat) {
 		switch(stat) {
 		case CPU_DOWN:
@@ -86,14 +91,23 @@ public class Telemetry {
 			while (true) {
 				Double result = getCPUTemp();
 				Double result2 = getBatteryVoltage();
+				Double result3 = getBatteryVoltageTank();
+				
 				if ((""+result2).equals(""+Constant.ERROR+".0")){
 				}
 				else {
 					result2 *= 4.9;
 				}
+				if ((""+result3).equals(""+Constant.ERROR+".0")){
+				}
+				else {
+					result3 *= 4.9;
+				}
 
 				frame.setTitle("CPU temp=" + result + "Celcius, "
 						+ "Battery="+(result2)+"Volts");
+				batteryTitle3.setText("Tank Battery="+result3+"Volts");
+				frame.repaint();
 				try {
 					Thread.sleep(Constant.sensor_read_ms);
 				} catch (InterruptedException e) {
@@ -126,10 +140,13 @@ public class Telemetry {
 		toppanel.add(cpuTitle);
 		toppanel.add(batteryTitle= new JLabel("BATTERY OK", SwingConstants.RIGHT));
 		frame.add(toppanel, BorderLayout.NORTH);
+		JPanel bottompanel = new JPanel();
+		bottompanel.add(cpuTitle2);
+		bottompanel.add(batteryTitle2);
+		frame.add(bottompanel, BorderLayout.SOUTH);
 		JPanel middlepanel = new JPanel();
-		middlepanel.add(cpuTitle2);
-		middlepanel.add(batteryTitle2);
-		frame.add(middlepanel, BorderLayout.SOUTH);
+		middlepanel.add(batteryTitle3 );
+		frame.add(middlepanel, BorderLayout.CENTER);
 
 		// Making the frame visible
 		frame.setVisible(true);
@@ -140,8 +157,6 @@ public class Telemetry {
 		t.start();
 
 	}
-	private double batteryVoltage2;
-	private Double timeout;
 
 
 	public Double getCPUTemp() {
@@ -149,7 +164,7 @@ public class Telemetry {
 				"/telemetry/cpu-temp",
 				result -> {
 					cpuTemp = result;
-					if ((""+cpuTemp).equals(""+Constant.ERROR+".0")) {
+					if (Double.compare(cpuTemp,(double)Constant.ERROR) == 0) {
 						updateStatus(COMMS_STATUS.CPU_DOWN);
 					} else {
 						updateStatus(COMMS_STATUS.CPU_GOOD);
@@ -167,7 +182,7 @@ public class Telemetry {
 				"/telemetry/volts/0",
 				result -> {
 					batteryVoltage = result;
-					if ((""+batteryVoltage).equals(""+Constant.ERROR+".0")) {
+					if (Double.compare(batteryVoltage,(double)Constant.ERROR) == 0) {
 						updateStatus(COMMS_STATUS.BATTERY_DOWN);
 					} else {
 						updateStatus(COMMS_STATUS.BATTERY_GOOD);
@@ -180,12 +195,30 @@ public class Telemetry {
 				);
 		return batteryVoltage;
 	}
+	public Double getBatteryVoltageTank() {
+		Constant.gg.getGenericAsync(
+				"/telemetry/volts/1",
+				result -> {
+					tankBatteryVoltage = result;
+					if (Double.compare(tankBatteryVoltage,(double)Constant.ERROR) == 0) {
+						updateStatus(COMMS_STATUS.BATTERY_DOWN);
+					} else {
+						updateStatus(COMMS_STATUS.BATTERY_GOOD);
+
+					}
+				},
+				errorMessage -> {
+					updateStatus(COMMS_STATUS.BATTERY_COMMS_DOWN);
+				}
+				);
+		return tankBatteryVoltage;
+	}
 	public Double getCPUTimeout() {
 		Constant.gg.getGenericAsync(
 				"/telemetry/timeout-temp",
 				result -> {
 					timeout = result;
-					if ((""+Constant.ERROR+".0").equals(""+timeout)) {
+					if (Double.compare(timeout,(double)Constant.ERROR) == 0) {
 						updateStatus(COMMS_STATUS.CPU_COMMS_TIMEOUT);
 					} else {
 						updateStatus(COMMS_STATUS.CPU_COMMS_FINE);
@@ -203,7 +236,7 @@ public class Telemetry {
 				"/telemetry/timeout-battery",
 				result -> {
 					batteryVoltage2 = result;
-					if ((""+Constant.ERROR+".0").equals(""+batteryVoltage2)) {
+					if (Double.compare(batteryVoltage2,(double)Constant.ERROR) == 0) {
 						updateStatus(COMMS_STATUS.BATTERY_COMMS_TIMEOUT);
 					} else {
 						updateStatus(COMMS_STATUS.BATTERY_COMMS_FINE);
