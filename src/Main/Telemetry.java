@@ -120,7 +120,7 @@ public class Telemetry {
 
 	public static void main(String[] args) {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(500, 100);
+		frame.setSize(500, 200);
 
 		JPanel toppanel = new JPanel();
 		toppanel.add(cpuTitle);
